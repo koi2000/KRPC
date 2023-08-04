@@ -1,5 +1,6 @@
-package com.koi.krpc.server;
+package com.koi.krpc.socket.server;
 
+import com.koi.krpc.RequestHandler;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.registry.ServiceRegistry;

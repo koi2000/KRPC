@@ -1,7 +1,9 @@
 package com.koi.krpc.entity;
 
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -12,6 +14,8 @@ import java.io.Serializable;
 // 消费者向服务提供者发送的请求对象
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RpcRequest implements Serializable {
 
     // 待调用的接口名称

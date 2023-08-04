@@ -1,7 +1,10 @@
 package com.koi.krpc.entity;
 
 import com.koi.krpc.enumeration.ResponseCode;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
@@ -10,6 +13,9 @@ import java.io.Serializable;
  * @date 2023/8/2 22:54
  */
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class RpcResponse<T> implements Serializable {
     // 响应状态码
     private Integer statusCode;

@@ -1,0 +1,20 @@
+package com.koi.krpc;
+
+import com.koi.krpc.entity.RpcRequest;
+import com.koi.krpc.entity.RpcResponse;
+import com.koi.krpc.enumeration.ResponseCode;
+import com.koi.krpc.enumeration.RpcError;
+import com.koi.krpc.exception.RpcException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+
+// 远程方法调用的消费者（客户端）
+public interface RpcClient {
+
+    Object sendRequest(RpcRequest rpcRequest);
+}
