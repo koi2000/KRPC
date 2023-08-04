@@ -1,11 +1,13 @@
 package com.koi.krpc.netty.client;
 
+import com.esotericsoftware.kryo.KryoSerializable;
 import com.koi.krpc.RpcClient;
 import com.koi.krpc.codec.CommonDecoder;
 import com.koi.krpc.codec.CommonEncoder;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.serializer.JsonSerializer;
+import com.koi.krpc.serializer.KryoSerializer;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -39,7 +41,7 @@ public class NettyClient implements RpcClient {
                     protected void initChannel(SocketChannel ch) throws Exception {
                         ChannelPipeline pipeline = ch.pipeline();
                         pipeline.addLast(new CommonDecoder())
-                                .addLast(new CommonEncoder(new JsonSerializer()))
+                                .addLast(new CommonEncoder(new KryoSerializer()))
                                 .addLast(new NettyClientHandler());
                     }
                 });
