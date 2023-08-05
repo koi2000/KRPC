@@ -3,6 +3,7 @@ package com.koi.krpc.netty.server;
 import com.koi.krpc.RpcServer;
 import com.koi.krpc.codec.CommonDecoder;
 import com.koi.krpc.codec.CommonEncoder;
+import com.koi.krpc.serializer.HessianSerializer;
 import com.koi.krpc.serializer.JsonSerializer;
 import com.koi.krpc.serializer.KryoSerializer;
 import io.netty.bootstrap.ServerBootstrap;
@@ -37,7 +38,7 @@ public class NettyServer implements RpcServer {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ChannelPipeline pipeline = ch.pipeline();
-                            pipeline.addLast(new CommonEncoder(new KryoSerializer()))
+                            pipeline.addLast(new CommonEncoder(new HessianSerializer()))
                                     .addLast(new CommonDecoder())
                                     .addLast(new NettyServerHandler());
                         }
