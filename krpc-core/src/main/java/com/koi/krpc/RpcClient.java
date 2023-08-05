@@ -5,6 +5,7 @@ import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.enumeration.ResponseCode;
 import com.koi.krpc.enumeration.RpcError;
 import com.koi.krpc.exception.RpcException;
+import com.koi.krpc.serializer.CommonSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,4 +18,6 @@ import java.net.Socket;
 public interface RpcClient {
 
     Object sendRequest(RpcRequest rpcRequest);
+
+    void setSerializer(CommonSerializer serializer);
 }
