@@ -1,6 +1,5 @@
 package com.koi.krpc;
 
-import com.koi.krpc.registry.ServiceRegistry;
 import com.koi.krpc.serializer.HessianSerializer;
 import com.koi.krpc.socket.server.SocketServer;
 

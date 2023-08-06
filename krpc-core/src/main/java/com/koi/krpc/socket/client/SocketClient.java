@@ -1,6 +1,8 @@
 package com.koi.krpc.socket.client;
 
+import com.koi.krpc.registry.NacosServiceDiscovery;
 import com.koi.krpc.registry.NacosServiceRegistry;
+import com.koi.krpc.registry.ServiceDiscovery;
 import com.koi.krpc.registry.ServiceRegistry;
 import com.koi.krpc.transport.RpcClient;
 import com.koi.krpc.entity.RpcRequest;
@@ -25,12 +27,12 @@ import java.net.Socket;
 public class SocketClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     private CommonSerializer serializer;
 
     public SocketClient() {
-        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceDiscovery = new NacosServiceDiscovery();
     }
 
     @Override
@@ -39,7 +41,7 @@ public class SocketClient implements RpcClient {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+        InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
         try (Socket socket = new Socket()) {
             socket.connect(inetSocketAddress);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());

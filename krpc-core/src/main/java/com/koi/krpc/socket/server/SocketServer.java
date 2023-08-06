@@ -31,7 +31,7 @@ public class SocketServer implements RpcServer {
     private final ServiceProvider serviceProvider;
     private CommonSerializer serializer;
 
-    public SocketServer(String host,int port) {
+    public SocketServer(String host, int port) {
         this.host = host;
         this.port = port;
         this.serviceRegistry = new NacosServiceRegistry();
@@ -40,19 +40,19 @@ public class SocketServer implements RpcServer {
     }
 
     @Override
-    public <T> void publishService(Object service,Class<T> serviceClass) {
+    public <T> void publishService(T service, Class<T> serviceClass) {
         if (serializer == null) {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        serviceProvider.addServiceProvider(service);
+        serviceProvider.addServiceProvider(service, serviceClass);
         serviceRegistry.register(serviceClass.getCanonicalName(),
                 new InetSocketAddress(host, port));
         start();
     }
 
     @Override
-    public void start(){
+    public void start() {
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("服务器启动……");
             Socket socket;

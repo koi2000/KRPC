@@ -1,5 +1,7 @@
 package com.koi.krpc.netty.client;
 
+import com.koi.krpc.registry.NacosServiceDiscovery;
+import com.koi.krpc.registry.ServiceDiscovery;
 import com.koi.krpc.transport.RpcClient;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
@@ -25,10 +27,10 @@ public class NettyClient implements RpcClient {
 
     private static final Bootstrap bootstrap;
     private CommonSerializer serializer;
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceDiscovery serviceDiscovery;
 
     public NettyClient() {
-        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceDiscovery = new NacosServiceDiscovery();
     }
 
     static {
@@ -47,7 +49,7 @@ public class NettyClient implements RpcClient {
         }
         AtomicReference<Object> result = new AtomicReference<>(null);
         try {
-            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if (channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
@@ -63,6 +65,7 @@ public class NettyClient implements RpcClient {
                 RpcMessageChecker.check(rpcRequest, rpcResponse);
                 result.set(rpcResponse.getData());
             } else {
+                channel.close();
                 System.exit(0);
             }
         } catch (InterruptedException e) {
