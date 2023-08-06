@@ -9,7 +9,6 @@ import com.koi.krpc.transport.RpcClientProxy;
 public class NettyTestClient {
     public static void main(String[] args) {
         RpcClient client = new NettyClient();
-        client.setSerializer(new ProtobufSerializer());
         RpcClientProxy rpcClientProxy = new RpcClientProxy(client);
         HelloService helloService = rpcClientProxy.getProxy(HelloService.class);
         HelloObject object = new HelloObject(12,"Hello World");

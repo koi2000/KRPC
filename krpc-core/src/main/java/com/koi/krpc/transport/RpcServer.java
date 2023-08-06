@@ -12,9 +12,9 @@ import java.util.concurrent.*;
 
 // 远程方法调用的提供者（服务端）
 public interface RpcServer {
-    void start();
+    int DEFAULT_SERIALIZER = CommonSerializer.KRYO_SERIALIZER;
 
-    void setSerializer(CommonSerializer serializer);
+    void start();
 
     <T> void publishService(T service,Class<T> serviceClass);
 }

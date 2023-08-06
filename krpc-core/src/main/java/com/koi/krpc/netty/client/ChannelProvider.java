@@ -66,7 +66,7 @@ public class ChannelProvider {
         bootstrap.connect(inetSocketAddress)
                 .addListener((ChannelFutureListener) future -> {
                     if (future.isSuccess()) {
-                        logger.info("客户端连接程度!");
+                        logger.info("客户端连接成功!");
                         channel = future.channel();
                         countDownLatch.countDown();
                         return;

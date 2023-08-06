@@ -16,8 +16,7 @@ import java.net.Socket;
 
 // 远程方法调用的消费者（客户端）
 public interface RpcClient {
+    int DEFAULT_SERIALIZER = CommonSerializer.KRYO_SERIALIZER;
 
     Object sendRequest(RpcRequest rpcRequest);
-
-    void setSerializer(CommonSerializer serializer);
 }

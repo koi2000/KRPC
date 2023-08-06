@@ -28,10 +28,15 @@ public class NettyClient implements RpcClient {
     private static final EventLoopGroup group;
     private static final Bootstrap bootstrap;
     private final ServiceDiscovery serviceDiscovery;
-    private CommonSerializer serializer;
+    private final CommonSerializer serializer;
 
     public NettyClient() {
+        this(DEFAULT_SERIALIZER);
+    }
+
+    public NettyClient(Integer serializer) {
         this.serviceDiscovery = new NacosServiceDiscovery();
+        this.serializer = CommonSerializer.getByCode(serializer);
     }
 
     static {
@@ -52,7 +57,7 @@ public class NettyClient implements RpcClient {
         try {
             InetSocketAddress inetSocketAddress = serviceDiscovery.lookupService(rpcRequest.getInterfaceName());
             Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
-            if (!channel.isActive()){
+            if (!channel.isActive()) {
                 group.shutdownGracefully();
                 return null;
             }
@@ -73,10 +78,5 @@ public class NettyClient implements RpcClient {
             Thread.currentThread().interrupt();
         }
         return result.get();
-    }
-
-    @Override
-    public void setSerializer(CommonSerializer serializer) {
-        this.serializer = serializer;
     }
 }
