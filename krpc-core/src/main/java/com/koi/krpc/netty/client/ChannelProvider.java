@@ -14,6 +14,7 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +44,7 @@ public class ChannelProvider {
                 // 自定义序列化编解码器
                 ch.pipeline().addLast(new CommonEncoder(serializer))
                         .addLast(new CommonDecoder())
+                        .addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS))
                         .addLast(new NettyClientHandler());
             }
         });
@@ -87,18 +89,18 @@ public class ChannelProvider {
                 });
     }
 
-    private static Bootstrap initializeBootstrap(){
+    private static Bootstrap initializeBootstrap() {
         eventLoopGroup = new NioEventLoopGroup();
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(eventLoopGroup)
                 .channel(NioSocketChannel.class)
                 // 连接的超时时间，超过这个时间仍建立连接失败的话就代表连接建立失败
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,5000)
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
                 // 是否开启TCP底层心跳机制
-                .option(ChannelOption.SO_KEEPALIVE,true)
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 // TCP默认开启了Nagle算法，作用为尽可能的发送大数据快，减少网络传输
                 // 该参数可以控制是否启用Nagle算法
-                .option(ChannelOption.TCP_NODELAY,true);
+                .option(ChannelOption.TCP_NODELAY, true);
         return bootstrap;
     }
 }
