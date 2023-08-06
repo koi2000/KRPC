@@ -1,4 +1,4 @@
-package com.koi.krpc;
+package com.koi.krpc.transport;
 
 import com.koi.krpc.entity.RpcRequest;
 import org.slf4j.Logger;

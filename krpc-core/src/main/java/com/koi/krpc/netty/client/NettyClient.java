@@ -1,21 +1,17 @@
 package com.koi.krpc.netty.client;
 
-import com.esotericsoftware.kryo.KryoSerializable;
-import com.koi.krpc.RpcClient;
-import com.koi.krpc.codec.CommonDecoder;
-import com.koi.krpc.codec.CommonEncoder;
+import com.koi.krpc.transport.RpcClient;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.enumeration.RpcError;
 import com.koi.krpc.exception.RpcException;
+import com.koi.krpc.registry.NacosServiceRegistry;
+import com.koi.krpc.registry.ServiceRegistry;
 import com.koi.krpc.serializer.CommonSerializer;
-import com.koi.krpc.serializer.JsonSerializer;
-import com.koi.krpc.serializer.KryoSerializer;
 import com.koi.krpc.util.RpcMessageChecker;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 import org.slf4j.Logger;
@@ -27,16 +23,12 @@ import java.util.concurrent.atomic.AtomicReference;
 public class NettyClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-    private String host;
-    private int port;
-
     private static final Bootstrap bootstrap;
-
     private CommonSerializer serializer;
+    private final ServiceRegistry serviceRegistry;
 
-    public NettyClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public NettyClient() {
+        this.serviceRegistry = new NacosServiceRegistry();
     }
 
     static {
@@ -55,7 +47,8 @@ public class NettyClient implements RpcClient {
         }
         AtomicReference<Object> result = new AtomicReference<>(null);
         try {
-            Channel channel = ChannelProvider.get(new InetSocketAddress(host, port), serializer);
+            InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+            Channel channel = ChannelProvider.get(inetSocketAddress, serializer);
             if (channel.isActive()) {
                 channel.writeAndFlush(rpcRequest).addListener(future1 -> {
                     if (future1.isSuccess()) {

@@ -1,7 +1,10 @@
 package com.koi.krpc.socket.server;
 
-import com.koi.krpc.RequestHandler;
-import com.koi.krpc.RpcServer;
+import com.koi.krpc.handler.RequestHandler;
+import com.koi.krpc.provider.ServiceProvider;
+import com.koi.krpc.provider.ServiceProviderImpl;
+import com.koi.krpc.registry.NacosServiceRegistry;
+import com.koi.krpc.transport.RpcServer;
 import com.koi.krpc.enumeration.RpcError;
 import com.koi.krpc.exception.RpcException;
 import com.koi.krpc.registry.ServiceRegistry;
@@ -11,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.*;
@@ -19,21 +23,36 @@ import java.util.concurrent.*;
 public class SocketServer implements RpcServer {
     private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
     private final ExecutorService threadPool;
-    private CommonSerializer serializer;
+    private final String host;
+    private final int port;
+
     private RequestHandler requestHandler = new RequestHandler();
     private final ServiceRegistry serviceRegistry;
+    private final ServiceProvider serviceProvider;
+    private CommonSerializer serializer;
 
-    public SocketServer(ServiceRegistry serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
+    public SocketServer(String host,int port) {
+        this.host = host;
+        this.port = port;
+        this.serviceRegistry = new NacosServiceRegistry();
+        this.serviceProvider = new ServiceProviderImpl();
         threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
     }
 
     @Override
-    public void start(int port) {
+    public <T> void publishService(Object service,Class<T> serviceClass) {
         if (serializer == null) {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
+        serviceProvider.addServiceProvider(service);
+        serviceRegistry.register(serviceClass.getCanonicalName(),
+                new InetSocketAddress(host, port));
+        start();
+    }
+
+    @Override
+    public void start(){
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             logger.info("服务器启动……");
             Socket socket;

@@ -1,6 +1,6 @@
 package com.koi.krpc.socket.server;
 
-import com.koi.krpc.RequestHandler;
+import com.koi.krpc.handler.RequestHandler;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.registry.ServiceRegistry;
@@ -43,8 +43,7 @@ public class RequestHandlerThread implements Runnable {
              OutputStream outputStream = new ObjectOutputStream(socket.getOutputStream())) {
             RpcRequest rpcRequest = (RpcRequest) ObjectReader.readObject(inputStream);
             String interfaceName = rpcRequest.getInterfaceName();
-            Object service = serviceRegistry.getService(interfaceName);
-            Object result = requestHandler.handle(rpcRequest, service);
+            Object result = requestHandler.handle(rpcRequest);
             RpcResponse<Object> response = RpcResponse.success(result, rpcRequest.getRequestId());
             ObjectWriter.writeObject(outputStream, response, serializer);
         } catch (IOException e) {

@@ -1,4 +1,4 @@
-package com.koi.krpc;
+package com.koi.krpc.transport;
 
 import com.koi.krpc.registry.ServiceRegistry;
 import com.koi.krpc.serializer.CommonSerializer;
@@ -12,7 +12,9 @@ import java.util.concurrent.*;
 
 // 远程方法调用的提供者（服务端）
 public interface RpcServer {
-    void start(int port);
+    void start();
 
     void setSerializer(CommonSerializer serializer);
+
+    <T> void publishService(Object service,Class<T> serviceClass);
 }

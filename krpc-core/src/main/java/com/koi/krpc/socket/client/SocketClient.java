@@ -1,6 +1,8 @@
 package com.koi.krpc.socket.client;
 
-import com.koi.krpc.RpcClient;
+import com.koi.krpc.registry.NacosServiceRegistry;
+import com.koi.krpc.registry.ServiceRegistry;
+import com.koi.krpc.transport.RpcClient;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
 import com.koi.krpc.enumeration.ResponseCode;
@@ -16,21 +18,19 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.net.InetSocketAddress;
 import java.net.Socket;
 
 // Socket方式远程方法调用的消费者（客户端）
 public class SocketClient implements RpcClient {
     private static final Logger logger = LoggerFactory.getLogger(SocketClient.class);
 
-    private final String host;
-
-    private final int port;
+    private final ServiceRegistry serviceRegistry;
 
     private CommonSerializer serializer;
 
-    public SocketClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    public SocketClient() {
+        this.serviceRegistry = new NacosServiceRegistry();
     }
 
     @Override
@@ -39,7 +39,9 @@ public class SocketClient implements RpcClient {
             logger.error("未设置序列化器");
             throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
         }
-        try (Socket socket = new Socket(host, port)) {
+        InetSocketAddress inetSocketAddress = serviceRegistry.lookupService(rpcRequest.getInterfaceName());
+        try (Socket socket = new Socket()) {
+            socket.connect(inetSocketAddress);
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
             ObjectInputStream inputStream = new ObjectInputStream(socket.getInputStream());
 

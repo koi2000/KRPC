@@ -1,10 +1,6 @@
 package com.koi.krpc;
 
 import com.koi.krpc.netty.server.NettyServer;
-import com.koi.krpc.registry.DefaultServiceRegistry;
-import com.koi.krpc.registry.ServiceRegistry;
-import com.koi.krpc.serializer.HessianSerializer;
-import com.koi.krpc.serializer.KryoSerializer;
 import com.koi.krpc.serializer.ProtobufSerializer;
 
 // 测试用Netty服务提供者（服务端）
@@ -12,11 +8,9 @@ public class NettyTestServer {
 
     public static void main(String[] args) {
         HelloService helloService = new HelloServiceImpl();
-        ServiceRegistry registry = new DefaultServiceRegistry();
-        registry.register(helloService);
-        NettyServer server = new NettyServer();
+        NettyServer server = new NettyServer("127.0.0.1",9999);
         server.setSerializer(new ProtobufSerializer());
-        server.start(9999);
+        server.publishService(helloService,HelloService.class);
     }
 
 }
