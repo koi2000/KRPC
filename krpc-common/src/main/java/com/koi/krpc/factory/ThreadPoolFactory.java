@@ -1,4 +1,4 @@
-package com.koi.krpc.util;
+package com.koi.krpc.factory;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 

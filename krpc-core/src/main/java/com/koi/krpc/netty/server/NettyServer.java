@@ -1,5 +1,6 @@
 package com.koi.krpc.netty.server;
 
+import com.koi.krpc.hook.ShutdownHook;
 import com.koi.krpc.transport.RpcServer;
 import com.koi.krpc.codec.CommonDecoder;
 import com.koi.krpc.codec.CommonEncoder;
@@ -67,6 +68,7 @@ public class NettyServer implements RpcServer {
                         }
                     });
             ChannelFuture future = serverBootstrap.bind(port).sync();
+            ShutdownHook.getShutdownHook().addClearAllHook();
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             logger.error("启动服务器时有错误发生: ", e);

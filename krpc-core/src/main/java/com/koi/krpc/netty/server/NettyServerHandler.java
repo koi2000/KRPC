@@ -1,10 +1,10 @@
 package com.koi.krpc.netty.server;
 
+import com.koi.krpc.factory.SingletonFactory;
 import com.koi.krpc.handler.RequestHandler;
 import com.koi.krpc.entity.RpcRequest;
 import com.koi.krpc.entity.RpcResponse;
-import com.koi.krpc.registry.ServiceRegistry;
-import com.koi.krpc.util.ThreadPoolFactory;
+import com.koi.krpc.factory.ThreadPoolFactory;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -19,11 +19,11 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<RpcRequest> 
     private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
     private static RequestHandler requestHandler;
     private static String THREAD_NAME_PREFIX = "netty-server-handler";
-    private static final ExecutorService threadPool;
+    private final ExecutorService threadPool;
 
-    static {
-        requestHandler = new RequestHandler();
-        threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
+    public NettyServerHandler(){
+        this.requestHandler = SingletonFactory.getInstance(RequestHandler.class);
+        this.threadPool = ThreadPoolFactory.createDefaultThreadPool(THREAD_NAME_PREFIX);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package com.koi.krpc.socket.server;
 
 import com.koi.krpc.handler.RequestHandler;
+import com.koi.krpc.hook.ShutdownHook;
 import com.koi.krpc.provider.ServiceProvider;
 import com.koi.krpc.provider.ServiceProviderImpl;
 import com.koi.krpc.registry.NacosServiceRegistry;
@@ -9,7 +10,7 @@ import com.koi.krpc.enumeration.RpcError;
 import com.koi.krpc.exception.RpcException;
 import com.koi.krpc.registry.ServiceRegistry;
 import com.koi.krpc.serializer.CommonSerializer;
-import com.koi.krpc.util.ThreadPoolFactory;
+import com.koi.krpc.factory.ThreadPoolFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,12 +54,14 @@ public class SocketServer implements RpcServer {
 
     @Override
     public void start() {
-        try (ServerSocket serverSocket = new ServerSocket(port)) {
+        try (ServerSocket serverSocket = new ServerSocket()) {
+            serverSocket.bind(new InetSocketAddress(host, port));
             logger.info("服务器启动……");
+            ShutdownHook.getShutdownHook().addClearAllHook();
             Socket socket;
             while ((socket = serverSocket.accept()) != null) {
                 logger.info("消费者连接: {}:{}", socket.getInetAddress(), socket.getPort());
-                threadPool.execute(new RequestHandlerThread(socket,
+                threadPool.execute(new SocketRequestHandlerThread(socket,
                         requestHandler, serviceRegistry, serializer));
             }
             threadPool.shutdown();
