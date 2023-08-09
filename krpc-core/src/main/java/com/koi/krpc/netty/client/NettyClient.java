@@ -1,6 +1,8 @@
 package com.koi.krpc.netty.client;
 
 import com.koi.krpc.factory.SingletonFactory;
+import com.koi.krpc.loadbalancer.LoadBalancer;
+import com.koi.krpc.loadbalancer.RandomLoadBalancer;
 import com.koi.krpc.registry.NacosServiceDiscovery;
 import com.koi.krpc.registry.ServiceDiscovery;
 import com.koi.krpc.transport.RpcClient;
@@ -34,11 +36,16 @@ public class NettyClient implements RpcClient {
     private final UnprocessedRequests unprocessedRequests;
 
     public NettyClient() {
-        this(DEFAULT_SERIALIZER);
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
     }
 
     public NettyClient(Integer serializer) {
-        this.serviceDiscovery = new NacosServiceDiscovery();
+        this(serializer,new RandomLoadBalancer());
+
+    }
+
+    public NettyClient(Integer serializer, LoadBalancer loadBalancer) {
+        this.serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         this.serializer = CommonSerializer.getByCode(serializer);
         this.unprocessedRequests = SingletonFactory.getInstance(UnprocessedRequests.class);
     }

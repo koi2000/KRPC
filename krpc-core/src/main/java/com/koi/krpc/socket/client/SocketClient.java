@@ -1,5 +1,7 @@
 package com.koi.krpc.socket.client;
 
+import com.koi.krpc.loadbalancer.LoadBalancer;
+import com.koi.krpc.loadbalancer.RandomLoadBalancer;
 import com.koi.krpc.registry.NacosServiceDiscovery;
 import com.koi.krpc.registry.NacosServiceRegistry;
 import com.koi.krpc.registry.ServiceDiscovery;
@@ -32,11 +34,19 @@ public class SocketClient implements RpcClient {
     private final CommonSerializer serializer;
 
     public SocketClient() {
-        this(DEFAULT_SERIALIZER);
+        this(DEFAULT_SERIALIZER, new RandomLoadBalancer());
+    }
+
+    public SocketClient(LoadBalancer loadBalancer) {
+        this(DEFAULT_SERIALIZER, loadBalancer);
     }
 
     public SocketClient(Integer serializer) {
-        this.serviceDiscovery = new NacosServiceDiscovery();
+        this(serializer, new RandomLoadBalancer());
+    }
+
+    public SocketClient(Integer serializer, LoadBalancer loadBalancer) {
+        this.serviceDiscovery = new NacosServiceDiscovery(loadBalancer);
         this.serializer = CommonSerializer.getByCode(serializer);
     }
 
