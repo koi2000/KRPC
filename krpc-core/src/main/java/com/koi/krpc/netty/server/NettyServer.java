@@ -1,6 +1,7 @@
 package com.koi.krpc.netty.server;
 
 import com.koi.krpc.hook.ShutdownHook;
+import com.koi.krpc.transport.AbstractRpcServer;
 import com.koi.krpc.transport.RpcServer;
 import com.koi.krpc.codec.CommonDecoder;
 import com.koi.krpc.codec.CommonEncoder;
@@ -26,13 +27,7 @@ import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 
 // NIO方式服务提供侧
-public class NettyServer implements RpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-
-    private final String host;
-    private final int port;
-    private final ServiceRegistry serviceRegistry;
-    private final ServiceProvider serviceProvider;
+public class NettyServer extends AbstractRpcServer {
 
     private final CommonSerializer serializer;
 
@@ -46,6 +41,7 @@ public class NettyServer implements RpcServer {
         serviceRegistry = new NacosServiceRegistry();
         serviceProvider = new ServiceProviderImpl();
         this.serializer = CommonSerializer.getByCode(serializer);
+        scanService();
     }
 
     @Override
@@ -80,16 +76,5 @@ public class NettyServer implements RpcServer {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
         }
-    }
-
-    @Override
-    public <T> void publishService(T service, Class<T> serviceClass) {
-        if (serializer == null) {
-            logger.error("未设置序列化器");
-            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
-        }
-        serviceProvider.addServiceProvider(service, serviceClass);
-        serviceRegistry.register(serviceClass.getCanonicalName(), new InetSocketAddress(host, port));
-        start();
     }
 }

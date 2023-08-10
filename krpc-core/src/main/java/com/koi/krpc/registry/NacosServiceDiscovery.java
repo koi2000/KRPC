@@ -3,6 +3,8 @@ package com.koi.krpc.registry;
 import com.alibaba.nacos.api.exception.NacosException;
 import com.alibaba.nacos.api.naming.NamingService;
 import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.koi.krpc.enumeration.RpcError;
+import com.koi.krpc.exception.RpcException;
 import com.koi.krpc.loadbalancer.LoadBalancer;
 import com.koi.krpc.loadbalancer.RandomLoadBalancer;
 import com.koi.krpc.util.NacosUtil;
@@ -33,6 +35,10 @@ public class NacosServiceDiscovery implements ServiceDiscovery {
     public InetSocketAddress lookupService(String serviceName) {
         try {
             List<Instance> instances = NacosUtil.getAllInstance(serviceName);
+            if (instances.isEmpty()) {
+                logger.error("找不到对应的服务" + serviceName);
+                throw new RpcException(RpcError.SERVICE_NOT_FOUND);
+            }
             Instance instance = loadBalancer.select(instances);
             return new InetSocketAddress(instance.getIp(), instance.getPort());
         } catch (NacosException e) {

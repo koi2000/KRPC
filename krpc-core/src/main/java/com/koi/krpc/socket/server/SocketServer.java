@@ -5,6 +5,7 @@ import com.koi.krpc.hook.ShutdownHook;
 import com.koi.krpc.provider.ServiceProvider;
 import com.koi.krpc.provider.ServiceProviderImpl;
 import com.koi.krpc.registry.NacosServiceRegistry;
+import com.koi.krpc.transport.AbstractRpcServer;
 import com.koi.krpc.transport.RpcServer;
 import com.koi.krpc.enumeration.RpcError;
 import com.koi.krpc.exception.RpcException;
@@ -21,12 +22,8 @@ import java.net.Socket;
 import java.util.concurrent.*;
 
 // Socket方式远程方法调用的提供者（服务端）
-public class SocketServer implements RpcServer {
-    private static final Logger logger = LoggerFactory.getLogger(SocketServer.class);
+public class SocketServer extends AbstractRpcServer {
     private final ExecutorService threadPool;
-    private final String host;
-    private final int port;
-
     private RequestHandler requestHandler = new RequestHandler();
     private final ServiceRegistry serviceRegistry;
     private final ServiceProvider serviceProvider;
@@ -43,18 +40,7 @@ public class SocketServer implements RpcServer {
         this.serviceProvider = new ServiceProviderImpl();
         threadPool = ThreadPoolFactory.createDefaultThreadPool("socket-rpc-server");
         this.serializer = CommonSerializer.getByCode(serializer);
-    }
-
-    @Override
-    public <T> void publishService(T service, Class<T> serviceClass) {
-        if (serializer == null) {
-            logger.error("未设置序列化器");
-            throw new RpcException(RpcError.SERIALIZER_NOT_FOUND);
-        }
-        serviceProvider.addServiceProvider(service, serviceClass);
-        serviceRegistry.register(serviceClass.getCanonicalName(),
-                new InetSocketAddress(host, port));
-        start();
+        scanService();
     }
 
     @Override
